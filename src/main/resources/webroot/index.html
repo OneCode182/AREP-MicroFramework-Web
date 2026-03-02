@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MicroFramework Example app</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #fafafa;
+        padding: 2em;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: white;
+        padding: 1em;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #333;
+      }
+      .links a {
+        display: block;
+        margin: 0.5em 0;
+        color: #007bff;
+        text-decoration: none;
+      }
+      .links a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Welcome to MicroFramework</h1>
+      <p>
+        This is a static HTML served directly from the
+        <code>staticfiles()</code> directory setup in the framework.
+      </p>
+
+      <h3>REST API Links</h3>
+      <div class="links">
+        <a href="/hello?name=Pedro"
+          >/hello?name=Pedro -> Test the query parameter parser</a
+        >
+        <a href="/pi">/pi -> Test a mathematical lambda</a>
+      </div>
+    </div>
+  </body>
+</html>

@@ -27,6 +27,7 @@
 ## Overview
 
 This project focuses on the development of a web microframework from scratch. It extends a basic web server to support:
+
 1. **REST Services**: Defining routes using lambda functions (e.g., `get("/path", (req, res) -> ...)`).
 2. **Query Parameter Management**: Extracting values from the request URL.
 3. **Static File Serving**: Configuring a specific directory for static assets (HTML, JS, CSS, images).
@@ -37,13 +38,46 @@ The objective is to understand the underlying architecture of web protocols (HTT
 
 ## Architecture
 
-*Add a detailed description or diagram of your system architecture here.*
+The Microframework uses a simple and robust architecture:
+
+### Architecture Diagram
+
+```mermaid
+graph TD
+    subgraph Web_Client
+        A[Browser / Client]
+    end
+
+    subgraph MicroFramework_Server
+        B[HttpServer]
+        C[Request Object]
+        D[Route Mapper]
+        E[Static File Manager]
+    end
+
+    subgraph Application_Logic
+        F[Lambda / REST Service]
+        G[Static Assets]
+    end
+
+    A -- HTTP Request --> B
+    B -- 1. Parse URI --> C
+    B -- 2. Match Path --> D
+    D -- 3a. Invoke --> F
+    B -- 3b. Handle --> E
+    E -- Local Read --> G
+    F -- Result --> B
+    E -- File Data --> B
+    B -- HTTP Response --> A
+```
 
 ### Components
-- **Web Server Core**: Handles socket connections and HTTP parsing.
-- **Request/Response Wrappers**: Abstractions for managing HTTP data.
-- **MicroFramework API**: The user-facing interface for service definition.
-- **Static File Manager**: Handles resource retrieval from the file system.
+
+- **Web Server Core (`HttpServer`)**: Handles socket connection lifecycle, listening on ports for incoming HTTP requests and forwarding them for processing.
+- **Request/Response Wrappers (`Request`, `Response`)**: Abstractions for HTTP syntax. The `Request` class seamlessly parses the URL path and decodes the Query String map parameters instantly.
+- **MicroFramework API (`MicroFramework`)**: Provides static syntactic sugar for the developer (`get()`, `staticfiles()`). It utilizes a Singleton pattern behind the scenes to access the Server instance.
+- **Static File Manager**: Searches specified folders `target/classes/<dir>/` and `src/main/resources/<dir>/` for valid binary and text artifacts and serves them with valid `Content-Type` headers.
+- **Microservice Logic (`Route`)**: A functional lambda interface serving as the API bridge where business logic is executed.
 
 ---
 
@@ -59,11 +93,19 @@ The objective is to understand the underlying architecture of web protocols (HTT
 │   │   │   └── edu/escuelaing/arep/
 │   │   │       ├── MicroFramework.java
 │   │   │       ├── server/
+│   │   │       │   ├── HttpServer.java
+│   │   │       │   ├── Request.java
+│   │   │       │   ├── Response.java
+│   │   │       │   └── Route.java
 │   │   │       └── testapp/
+│   │   │           └── Main.java
 │   │   └── resources/
 │   │       └── webroot/
+│   │           └── index.html
 │   └── test/
 │       └── java/
+│           └── edu/escuelaing/arep/
+│               └── MicroFrameworkTest.java
 ```
 
 ---
@@ -95,36 +137,73 @@ mvn clean install
 
 ```bash
 # Run the application
-java -cp target/classes:target/dependency/* edu.escuelaing.arep.Main
+java -cp "target/classes;target/dependency/*" edu.escuelaing.arep.testapp.Main
 ```
 
 </details>
-
 
 ---
 
 ## Features
 
-- [ ] **lambda-based REST services**: via the `get()` method.
-- [ ] **Query parameters**: accessible through the request object.
-- [ ] **Static file location**: configurable via `staticfiles()`.
-- [ ] **Professional structure**: Maven-compatible layout.
+- [x] **lambda-based REST services**: via the `get()` method.
+- [x] **Query parameters**: accessible through the request object.
+- [x] **Static file location**: configurable via `staticfiles()`.
+- [x] **Professional structure**: Maven-compatible layout.
 
 ---
 
 ## Testing
 
 ### Automated Tests
-*Explain your testing strategy here.*
+
+The project contains unit tests constructed around `JUnit 4`. These assert that the query parser accurately builds hash maps out of URI query strings and properly routes API assignments.
+
+> [!TIP]
+> **Screenshot Placeholder**: Insert a terminal screenshot showing the final `BUILD SUCCESS` from the `mvn clean test` command.
+> ![img](./resources/img/tests.png)
 
 Run the tests using Maven:
+
 ```bash
-mvn test
+mvn clean test
+```
+
+_Expected output: All tests parse without failures (0 Failures, 0 Errors)._ Evidence:
+
+```text
+[INFO] Running edu.escuelaing.arep.MicroFrameworkTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.054 s - in edu.escuelaing.arep.MicroFrameworkTest
+[INFO]
+[INFO] Results:
+[INFO]
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
 ```
 
 ### Manual Testing
-- Accessing `http://localhost:8080/App/hello?name=User`
-- Accessing static files at `http://localhost:8080/index.html`
+
+The application can be verified manually by navigating to the following endpoints while the server is running:
+
+- **REST Service with Parameters**: `http://localhost:8080/App/hello?name=User`
+
+> [!NOTE]
+> **Screenshot Placeholder**: Browser screenshot of the hello service.
+> ![img](./resources/img/namePedro.png)
+
+- **Mathematical Service (PI)**: `http://localhost:8080/pi`
+
+> [!NOTE]
+>
+> **Screenshot Placeholder**: Browser screenshot showing the value of PI.
+> ![img](./resources/img/pi.png)
+
+- **Static Content**: `http://localhost:8080/index.html`
+
+> [!NOTE]
+> **Screenshot Placeholder**: Browser screenshot showing the rendered HTML page with CSS.
+> ![img](./resources/img/html-home.png)
 
 ---
 
@@ -133,29 +212,29 @@ mvn test
 <details>
 <summary>View Rubric</summary>
 
-| Reference Criterion | Points |
-| :--- | :---: |
-| **Deliverables** | **7** |
-| Deployed on GitHub | 1 |
-| Complete .gitignore file | 1 |
-| Has README.md | 1 |
-| Contains no unnecessary files or folders | 1 |
-| Has a POM.xml | 1 |
-| Respects Maven structure | 1 |
-| Does not contain the target folder | 1 |
-| **Design and Architecture** | **35** |
-| Implement a `get()` method with lambda functions | 3 |
-| Mechanism to extract query parameters | 3 |
-| Introduce a `staticfiles()` method | 3 |
-| Meets all other functional requirements | 3 |
-| Meets quality attributes | 5 |
-| System design seems reasonable for the problem | 3 |
-| Design is well documented in the README.md | 3 |
-| README contains installation and usage instructions | 3 |
-| README shows evidence of tests | 3 |
-| Has automated tests | 3 |
-| Repository can be cloned and executed | 3 |
-| **Total** | **42** |
+| Reference Criterion                                 | Points |
+| :-------------------------------------------------- | :----: |
+| **Deliverables**                                    | **7**  |
+| Deployed on GitHub                                  |   1    |
+| Complete .gitignore file                            |   1    |
+| Has README.md                                       |   1    |
+| Contains no unnecessary files or folders            |   1    |
+| Has a POM.xml                                       |   1    |
+| Respects Maven structure                            |   1    |
+| Does not contain the target folder                  |   1    |
+| **Design and Architecture**                         | **35** |
+| Implement a `get()` method with lambda functions    |   3    |
+| Mechanism to extract query parameters               |   3    |
+| Introduce a `staticfiles()` method                  |   3    |
+| Meets all other functional requirements             |   3    |
+| Meets quality attributes                            |   5    |
+| System design seems reasonable for the problem      |   3    |
+| Design is well documented in the README.md          |   3    |
+| README contains installation and usage instructions |   3    |
+| README shows evidence of tests                      |   3    |
+| Has automated tests                                 |   3    |
+| Repository can be cloned and executed               |   3    |
+| **Total**                                           | **42** |
 
 </details>
 
@@ -164,7 +243,7 @@ mvn test
 ## Author
 
 **Sergio Andrey Silva Rodriguez**  
-*Systems Engineering Student*  
+_Systems Engineering Student_  
 Escuela Colombiana de Ingeniería Julio Garavito
 
 ---
